@@ -22,8 +22,12 @@ urlpatterns = [
     path('login/',views.login),
     path('typography/',views.typography),
     path('element/',views.element),
+    path('signup/',views.usersignup),
+    path('dashboard/', views.Dashboard),
     path('usersignup/',views.UserSignupAPI.as_view(), name='UserSignupAPI'),
     path('userlogin/',views.userLoginAPI.as_view(),name='userLoginAPI'),
     path('myprofile/',views.MyProfileAPI.as_view(),name='MyProfileAPI'),
-
+    path('maincategory/',views.MainCategoryAPI.as_view(),name='MainCategoryAPI'),
+    path('subcategory/',views.SubCategoryAPI.as_view(),name = 'SubCategoryAPI'),
+    # path('product/',views.)
 ]
