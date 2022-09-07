@@ -28,6 +28,7 @@ class SubCategory(models.Model):
     # slug = models.SlugField(unique=True, null=True)
     mainCategoryId = models.ForeignKey(mainCategory,on_delete=models.CASCADE)
     subCategoryName = models.CharField(max_length=100)
+    title = models.CharField(max_length=20)
     description = models.CharField(max_length=100)
     class Meta:
         db_table = 'SubCategory'
@@ -50,6 +51,14 @@ class Offer(models.Model):
     ofervalue = models.IntegerField()
     class Meta:
         db_table = 'Offer'
+        
+        
+class Discount(models.Model):
+    discountName = models.CharField(max_length=20)
+    discountValue= models.CharField(max_length=200)
+    class Meta:
+        db_table = 'Discount'
+        
         
 
 

@@ -24,10 +24,17 @@ urlpatterns = [
     path('element/',views.element),
     path('signup/',views.usersignup),
     path('dashboard/', views.Dashboard),
+    path('widget/',views.widget),
+    path('form/',views.form),
+    path('chart/',views.chart),
+    path('error/',views.error),
+    path('blank/',views.blank),
     path('usersignup/',views.UserSignupAPI.as_view(), name='UserSignupAPI'),
     path('userlogin/',views.userLoginAPI.as_view(),name='userLoginAPI'),
     path('myprofile/',views.MyProfileAPI.as_view(),name='MyProfileAPI'),
     path('maincategory/',views.MainCategoryAPI.as_view(),name='MainCategoryAPI'),
     path('subcategory/',views.SubCategoryAPI.as_view(),name = 'SubCategoryAPI'),
-    # path('product/',views.)
+    path('ProductAPI/',views.ProductAPI.as_view(),name = 'ProductAPI'),
+    path('OfferAPI/',views.OfferAPI.as_view(),name='OfferAPI'),
+    path('DiscountAPI/',views.DiscountAPI.as_view(),name='DiscountAPI'),
 ]
