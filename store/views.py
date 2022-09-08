@@ -1,3 +1,5 @@
+from pickle import FALSE
+from shutil import ExecError
 from django.shortcuts import render
 from rest_framework.views import APIView
 from django.http import JsonResponse
@@ -52,6 +54,7 @@ class UserSignupAPI(APIView):
             if serializer.is_valid():
                 serializer.save()
                 return JsonResponse({"message":"Regstration Successfully"},safe=False,status=200)
+                # return render(request, )
             else:
                 return JsonResponse({"message":"Something Goes Wrong"},safe=False,status=404)
         except Exception as e:
@@ -64,10 +67,11 @@ class userLoginAPI(APIView):
         try:
             get_data = User.objects.get(email=email, password=password)
             if get_data:
-                return render(request,'table.html')
-                # return JsonResponse({"message":"Login succeefully"},safe=False,status=200)
+                # return render(request,'table.html')
+                return JsonResponse({"message":"Login succeefully"},safe=False,status=200)
             else:
-                return render(request,'404.html')
+                # return render(request,'404.html')
+                return JsonResponse({"message":"Something goes wrong"},safe=False,status=404)
         except Exception as e:
             return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
 
@@ -211,8 +215,6 @@ class OfferAPI(APIView):
         except Exception as e:
             return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
         
-        
-        
 class DiscountAPI(APIView):
     def post(self, request):
         try:
@@ -223,5 +225,21 @@ class DiscountAPI(APIView):
                 return JsonResponse({"message":"Data added successfully"},safe=False,status=200)
             else:
                 return JsonResponse({"message":"Something goes wrong"},safe=False,status=404)
+        except Exception as e:
+            return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
+
+    def get(self, request):
+        try:
+            get_data = Discount.objects.all()
+            serializer = DiscountSerializer(get_data,many=True)
+            return JsonResponse(serializer.data,safe=False,status=200)
+        except Exception as e:
+            return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
+
+    def delete(self, request):
+        try:
+            id = request.GET['id']
+            Discount.objects.filter(id=id).delete()
+            return JsonResponse({"message":"data delete successfully"},safe=False,status=200)
         except Exception as e:
             return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
