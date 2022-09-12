@@ -37,4 +37,7 @@ urlpatterns = [
     path('ProductAPI/',views.ProductAPI.as_view(),name = 'ProductAPI'),
     path('OfferAPI/',views.OfferAPI.as_view(),name='OfferAPI'),
     path('DiscountAPI/',views.DiscountAPI.as_view(),name='DiscountAPI'),
+    path('signupp/',views.signup),
+    path('hello/', views.HelloView.as_view(), name ='hello'),
+
 ]

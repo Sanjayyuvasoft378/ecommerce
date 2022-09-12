@@ -1,14 +1,32 @@
 from pickle import FALSE
 from shutil import ExecError
-from django.shortcuts import render
+from traceback import print_tb
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import login,authenticate,logout
+from urllib.parse import uses_relative
+from django.shortcuts import render,redirect
 from rest_framework.views import APIView
 from django.http import JsonResponse
+from django.conf import settings
+from django.core.mail import send_mail
 # from store.models import Offer, Product, SubCategory, User, mainCategory
 from .models import *
 # from store.serializers import MainCategorySerializer, OfferSerializer, ProductSerializer, SubCategorySerializer, UserSerializer
 from .serializers import *
-
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+  
 # Create your views here.
+
+
+
+  
+class HelloView(APIView):
+    permission_classes = (IsAuthenticated, )
+  
+    def get(self, request):
+        content = {'message': 'Hello, GeeksforGeeks'}
+        return Response(content)
 
 def show(request):
     return render(request,'index.html')
@@ -46,6 +64,43 @@ def error(request):
 def blank(request):
     return render(request,'blank.html')
 
+@csrf_exempt
+def signup(request):
+    print("4444")
+    if request.method == 'POST':
+        firstName = request.POST.get("firstName")
+        lastName = request.POST.get('lastName')
+        email = request.POST.get('email')
+        mobileNo = request.POST.get('mobileNo')
+        Address = request.POST.get('Address')
+        password = request.POST.get('password')
+        print("333",firstName)
+        print("333",password)
+        user = User.objects.create_user(
+            firstName = firstName,
+            lastName = lastName,
+            email = email,
+            mobileNo = mobileNo,
+            Address = Address,
+            password = password
+            
+        )
+        print("@@@@@@@@@@@@@@@@@" ,user)
+        login(request,user)
+        subject = 'Hi this is testing mail'
+        message = 'hi {user.firstName}  thanks for registration to our website'
+        email_from = settings.EMAIL_HOST_USER
+        recipient_list = [user.email,]
+        send_mail(subject, message, email_from, recipient_list)
+        print("fdfdfdfdfdfdf")
+        # return redirect('/dashboard')
+        return JsonResponse({"message":"mail sent "},safe=False,status=200)
+    # return render(request,'signup.html')
+    return JsonResponse({"message":"error occured"},safe=False,status=404)
+
+
+
+
 class UserSignupAPI(APIView):
     def post(self, request, *args, **kwargs):
         try:
@@ -79,9 +134,7 @@ class MyProfileAPI(APIView):
     def get(self,request):
         try:
             id = request.GET['id']
-            print("4444444",id)
             get_data = User.objects.filter(id=id)
-            print("...........",get_data)
             serializer = UserSerializer(get_data, many=True)
             return JsonResponse(serializer.data,safe=False,status=200)
         except Exception as e:
@@ -243,3 +296,58 @@ class DiscountAPI(APIView):
             return JsonResponse({"message":"data delete successfully"},safe=False,status=200)
         except Exception as e:
             return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
+
+
+class AddToCartAPI(APIView): 
+    def post(self,request):
+        try:
+            Data = request.data
+            id = Data['id']
+            get_data = Product.objects.filter(productId=id)
+            serializer = ProductSerializer(get_data, many=True) 
+            if serializer.is_valid():
+                serializer.save()
+                return JsonResponse({"message":"Data add to cart successfully"},safe=False,status=200)
+            else:
+                return JsonResponse({"message":"Something goes wrong"},safe=False,status=404)
+        except Exception as e:
+            return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
+
+class AddToWishlistAPI(APIView):
+    def post(self, request):
+        try:
+            Data = request.data
+            productId = Data['productId']
+            get_data = Product.objects.filter(id=productId)
+            serializers = ProductSerializer(get_data, many=True)
+            if serializers.is_valid():
+                serializers.save()
+                message = {
+                    "status":200,
+                    "result":"Product added to wishlist"
+                 }
+                return JsonResponse(message, safe=False,status=200)
+            else:
+                return JsonResponse({"message":"Product not found"},safe=False,status=404)
+        except Exception as e:
+            message = {
+                "status":404,
+                "result":"Internal server error {}".format(e)
+            }
+            return JsonResponse(message,safe=False,status=500)
+
+class CartListAPI(APIView):
+    def get(self, request):
+        try:
+            get_data = Product.objects.all()
+            ProductSerializer(get_data,many=True)
+            return JsonResponse(serializers.data,safe=False,status=200)
+        except Exception as e:
+            return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
+            
+            
+# class WishlistAPI(APIView):
+#     def get(self, request):
+#         try:
+#             get_data = 
+
