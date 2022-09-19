@@ -1,25 +1,17 @@
-from pickle import FALSE
-from shutil import ExecError
-from traceback import print_tb
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth import login,authenticate,logout
-from urllib.parse import uses_relative
-from django.shortcuts import render,redirect
+from django.contrib.auth import login
+from django.shortcuts import render
+from datetime import datetime
 from rest_framework.views import APIView
 from django.http import JsonResponse
 from django.conf import settings
 from django.core.mail import send_mail
-# from store.models import Offer, Product, SubCategory, User, mainCategory
 from .models import *
-# from store.serializers import MainCategorySerializer, OfferSerializer, ProductSerializer, SubCategorySerializer, UserSerializer
 from .serializers import *
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
   
 # Create your views here.
-
-
-
   
 class HelloView(APIView):
     permission_classes = (IsAuthenticated, )
@@ -64,6 +56,9 @@ def error(request):
 def blank(request):
     return render(request,'blank.html')
 
+def forgotpassword(request):
+    return render(request, 'forgotpassword.html')
+
 @csrf_exempt
 def signup(request):
     print("4444")
@@ -98,9 +93,7 @@ def signup(request):
     # return render(request,'signup.html')
     return JsonResponse({"message":"error occured"},safe=False,status=404)
 
-
-
-
+#  Acount Module
 class UserSignupAPI(APIView):
     def post(self, request, *args, **kwargs):
         try:
@@ -114,7 +107,6 @@ class UserSignupAPI(APIView):
                 return JsonResponse({"message":"Something Goes Wrong"},safe=False,status=404)
         except Exception as e:
             return  JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
-
 class userLoginAPI(APIView):
     def post(self,request, *args, **kwargs):
         email = request.data.get('email',None)
@@ -123,13 +115,20 @@ class userLoginAPI(APIView):
             get_data = User.objects.get(email=email, password=password)
             if get_data:
                 # return render(request,'table.html')
-                return JsonResponse({"message":"Login succeefully"},safe=False,status=200)
+                return JsonResponse({"result":"Login Successfully"},safe=False,status=200)
             else:
                 # return render(request,'404.html')
-                return JsonResponse({"message":"Something goes wrong"},safe=False,status=404)
+                return JsonResponse({"message":"Credential does not match"},safe=False,status=404)
         except Exception as e:
             return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
+class ForgotPasswordAPI(APIView):
+    def post(self, request):
+        try:
+            Data = request.data
+            
 
+        except Exception as e:
+            return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
 class MyProfileAPI(APIView):
     def get(self,request):
         try:
@@ -140,11 +139,13 @@ class MyProfileAPI(APIView):
         except Exception as e:
             return JsonResponse({"messsage":"Internal server error {}".format(e)},safe=False,status=500)
 
+# Category Module
 class MainCategoryAPI(APIView):
     def post(self, request, *args, **kwargs):
         try:
             Data = request.data
             serializer = MainCategorySerializer(data = Data)
+            Data['createdOn'] = datetime.now()
             if serializer.is_valid():
                 serializer.save()
                 return JsonResponse({"message":"Data added successfully"},safe=False,status=200)
@@ -180,8 +181,6 @@ class MainCategoryAPI(APIView):
                 return JsonResponse({"message":"Something goes wrong"},safe=False,status=404)
         except Exception as e:
             return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
-
-
 class SubCategoryAPI(APIView):
     def post(self, request):
         try:
@@ -209,8 +208,6 @@ class SubCategoryAPI(APIView):
             return JsonResponse({"message":"Data deleted successfully"},safe=False,status=200)
         except Exception as e:
             return JsonResponse({"message":"Intenal server error {}".format(e)},safe=False,status=500)
-            
-            
 class ProductAPI(APIView):
     def post(self, request):
         try:
@@ -239,7 +236,7 @@ class ProductAPI(APIView):
         except Exception as e:
             return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
 
-
+# OFFer, Discount And Other APIs 
 class OfferAPI(APIView):
     def post(self,request):
         try:
@@ -267,7 +264,6 @@ class OfferAPI(APIView):
             return JsonResponse({"message":"Data deleted successfully"},safe=False,status=200)
         except Exception as e:
             return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
-        
 class DiscountAPI(APIView):
     def post(self, request):
         try:
@@ -296,23 +292,188 @@ class DiscountAPI(APIView):
             return JsonResponse({"message":"data delete successfully"},safe=False,status=200)
         except Exception as e:
             return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
+class SizeAPI(APIView):
+    def post(self, request, *args, **kwargs):
+        try:
+            Data = request.data
+            Serializer = SizeSerializer(data=Data)
+            if Serializer.is_valid():
+                Serializer.save()
+                return JsonResponse({"message":"Data addedd successfully"},safe=False,status=200)
+            else:
+                return JsonResponse({"message":"Something goes wrong"},safe=False,status=404)
+        except Exception as e:
+            return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
+    def get(self, request, *args, **kwargs):
+        try:
+            data = Size.objects.all()
+            Serializer = SizeSerializer(data, many=True)  
+            return JsonResponse(Serializer.data, safe=False,status=200)
+        except Exception as e:
+            return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
+    def delete(self, request):
+        try:
+            id = request.GET.get('id')
+            data = Size.objects.filter(id=id).delete()
+            SizeSerializer(data,many=True)
+            return JsonResponse({"message":"Data deleted successfully"},safe=False,status=200)
+        except Exception as e:
+            return JsonResponse({"message":"INternal server error {}".format(e)},safe=False,status=500)
+class ColorAPI(APIView):
+    def post(self, request, *args, **kwargs):
+        try:
+            Data = request.data
+            Serializer = ColorSerializer(data=Data)
+            if Serializer.is_valid():
+                Serializer.save()
+                return JsonResponse({"message":"Data addedd successfully"},safe=False,status=200)
+            else:
+                return JsonResponse({"message":"Something goes wrong"},safe=False,status=404)
+        except Exception as e:
+            return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
+    def get(self, request, *args, **kwargs):
+        try:
+            data = Color.objects.all()
+            Serializer = ColorSerializer(data, many=True)  
+            return JsonResponse(Serializer.data, safe=False,status=200)
+        except Exception as e:
+            return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
+    def delete(self, request):
+        try:
+            id = request.GET.get('id')
+            data = Color.objects.filter(id=id).delete()
+            ColorSerializer(data,many=True)
+            return JsonResponse({"message":"Data deleted successfully"},safe=False,status=200)
+        except Exception as e:
+            return JsonResponse({"message":"INternal server error {}".format(e)},safe=False,status=500)
+class GenderAPI(APIView):
+    def post(self, request, *args, **kwargs):
+        try:
+            Data = request.data
+            Serializer = GenderSerializer(data=Data)
+            if Serializer.is_valid():
+                Serializer.save()
+                return JsonResponse({"message":"Data addedd successfully"},safe=False,status=200)
+            else:
+                return JsonResponse({"message":"Something goes wrong"},safe=False,status=404)
+        except Exception as e:
+            return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
+    def get(self, request, *args, **kwargs):
+        try:
+            data = Gender.objects.all()
+            Serializer = GenderSerializer(data, many=True)  
+            return JsonResponse(Serializer.data, safe=False,status=200)
+        except Exception as e:
+            return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
+    def delete(self, request):
+        try:
+            id = request.GET.get('id')
+            data = Gender.objects.filter(id=id).delete()
+            GenderSerializer(data,many=True)
+            return JsonResponse({"message":"Data deleted successfully"},safe=False,status=200)
+        except Exception as e:
+            return JsonResponse({"message":"INternal server error {}".format(e)},safe=False,status=500)
+class BrandAPI(APIView):
+    def post(self, request, *args, **kwargs):
+        try:
+            Data = request.data
+            Serializer = BrandSerializer(data=Data)
+            if Serializer.is_valid():
+                Serializer.save()
+                return JsonResponse({"message":"Data addedd successfully"},safe=False,status=200)
+            else:
+                return JsonResponse({"message":"Something goes wrong"},safe=False,status=404)
+        except Exception as e:
+            return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
+    def get(self, request, *args, **kwargs):
+        try:
+            data = Brand.objects.all()
+            Serializer = BrandSerializer(data, many=True)  
+            return JsonResponse(Serializer.data, safe=False,status=200)
+        except Exception as e:
+            return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
+    def delete(self, request):
+        try:
+            id = request.GET.get('id')
+            data = Brand.objects.filter(id=id).delete()
+            BrandSerializer(data,many=True)
+            return JsonResponse({"message":"Data deleted successfully"},safe=False,status=200)
+        except Exception as e:
+            return JsonResponse({"message":"INternal server error {}".format(e)},safe=False,status=500)
+class SliderAPI(APIView):
+    def post(self, request, *args, **kwargs):
+        try:
+            Data = request.data
+            Serializer = SliderSerializer(data=Data)
+            if Serializer.is_valid():
+                Serializer.save()
+                return JsonResponse({"message":"Data addedd successfully"},safe=False,status=200)
+            else:
+                return JsonResponse({"message":"Something goes wrong"},safe=False,status=404)
+        except Exception as e:
+            return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
+    def get(self, request, *args, **kwargs):
+        try:
+            data = Slider.objects.all()
+            Serializer = SliderSerializer(data, many=True)  
+            return JsonResponse(Serializer.data, safe=False,status=200)
+        except Exception as e:
+            return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
+    def delete(self, request):
+        try:
+            id = request.GET.get('id')
+            data = Slider.objects.filter(id=id).delete()
+            SliderSerializer(data,many=True)
+            return JsonResponse({"message":"Data deleted successfully"},safe=False,status=200)
+        except Exception as e:
+            return JsonResponse({"message":"INternal server error {}".format(e)},safe=False,status=500)
+class StaffAPI(APIView):
+    def post(self, request, *args, **kwargs):
+        try:
+            Data = request.data
+            Serializer = StaffSerializer(data=Data)
+            if Serializer.is_valid():
+                Serializer.save()
+                return JsonResponse({"message":"Data addedd successfully"},safe=False,status=200)
+            else:
+                return JsonResponse({"message":"Something goes wrong"},safe=False,status=404)
+        except Exception as e:
+            return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
+    def get(self, request, *args, **kwargs):
+        try:
+            data = Staff.objects.all()
+            Serializer = StaffSerializer(data, many=True)  
+            return JsonResponse(Serializer.data, safe=False,status=200)
+        except Exception as e:
+            return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
+    def delete(self, request):
+        try:
+            id = request.GET.get('id')
+            data = Staff.objects.filter(id=id).delete()
+            StaffSerializer(data,many=True)
+            return JsonResponse({"message":"Data deleted successfully"},safe=False,status=200)
+        except Exception as e:
+            return JsonResponse({"message":"INternal server error {}".format(e)},safe=False,status=500)
 
-
+# Cart & Wishlist APIs
 class AddToCartAPI(APIView): 
     def post(self,request):
         try:
             Data = request.data
             id = Data['id']
-            get_data = Product.objects.filter(productId=id)
-            serializer = ProductSerializer(get_data, many=True) 
-            if serializer.is_valid():
-                serializer.save()
-                return JsonResponse({"message":"Data add to cart successfully"},safe=False,status=200)
+            get_data = Product.objects.filter(id=id)
+            if get_data:
+                serializer = CartSerializer(data=Data) 
+                # serializer = CartSerializer(data=Data)
+                if serializer.is_valid():
+                    serializer.save()
+                    return JsonResponse({"message":"Data add to cart successfully"},safe=False,status=200)
+                else:
+                    return JsonResponse({"message":"Something goes wrong"},safe=False,status=404)
             else:
-                return JsonResponse({"message":"Something goes wrong"},safe=False,status=404)
+                    return JsonResponse({"message":"Something goesss wrong"},safe=False,status=404)
         except Exception as e:
             return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
-
 class AddToWishlistAPI(APIView):
     def post(self, request):
         try:
@@ -335,7 +496,6 @@ class AddToWishlistAPI(APIView):
                 "result":"Internal server error {}".format(e)
             }
             return JsonResponse(message,safe=False,status=500)
-
 class CartListAPI(APIView):
     def get(self, request):
         try:
@@ -344,10 +504,67 @@ class CartListAPI(APIView):
             return JsonResponse(serializers.data,safe=False,status=200)
         except Exception as e:
             return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
+class WishlistAPI(APIView):
+    def get(self, request):
+        try:
+            get_data = Wishlist.objects.all()
+            serializer = WishlistSerailizer(get_data, many=True)
+            return JsonResponse(serializer.data,safe=False,status=200)
+        except Exception as e:
+            return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
+
+#   Filter APIs
+class FilterByNameAPI(APIView):
+    def post(self, request):
+        try:
+            Data = request.data
+            ls =[]
+            Data['createdOn'] = datetime.now()
+            get_data = Product.objects.all()
+            for i in get_data:
+                if i is not None:
+                    ProductSerializer(i, many=True)
+                    ls.append(i)
+                    return JsonResponse(ls,safe=False,status=200)
+                else:
+                    return JsonResponse({"message":"something goes wrong "},safe=False,status=200)
+            return JsonResponse({"message":"Product not found in the database"},safe=False,status=404)
             
-            
-# class WishlistAPI(APIView):
-#     def get(self, request):
-#         try:
-#             get_data = 
+        except Exception as e:
+            return JsonResponse({"message":"Internal server error {}".format},safe=False,status=500)
+
+# List APIS for user Panels
+class ProductListAPI(APIView):
+    def get(self, request, *args, **kwargs):
+        try:
+            get_data = Product.objects.all()
+            Serializer = ProductSerializer(get_data, many=True)
+            return JsonResponse(Serializer.data,safe=False, status=200)
+        except Exception as e:
+            return JsonResponse({"message":"Internal server eror {}".format(e)},safe=False,status=500)
+class MainCategoryListAPI(APIView):
+    def get(self, request, *args, **kwargs):
+        try:
+            get_data = mainCategory.objects.all()
+            Serializer = MainCategorySerializer(get_data, many=True)
+            return JsonResponse(Serializer.data,safe=False, status=200)
+        except Exception as e:
+            return JsonResponse({"message":"Internal server eror {}".format(e)},safe=False,status=500)
+class SubCategoryListAPI(APIView):
+    def get(self, request, *args, **kwargs):
+        try:
+            get_data = SubCategory.objects.all()
+            Serializer = SubCategorySerializer(get_data, many=True)
+            return JsonResponse(Serializer.data,safe=False, status=200)
+        except Exception as e:
+            return JsonResponse({"message":"Internal server eror {}".format(e)},safe=False,status=500)
+class BrandListAPI(APIView):
+    def get(self, request, *args, **kwargs):
+        try:
+            get_data = Brand.objects.all()
+            Serializer = BrandSerializer(get_data, many=True)
+            return JsonResponse(Serializer.data,safe=False, status=200)
+        except Exception as e:
+            return JsonResponse({"message":"Internal server eror {}".format(e)},safe=False,status=500)
+
 

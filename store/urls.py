@@ -28,6 +28,7 @@ urlpatterns = [
     path('form/',views.form),
     path('chart/',views.chart),
     path('error/',views.error),
+    path('forgotpassword/',views.forgotpassword),
     path('blank/',views.blank),
     path('usersignup/',views.UserSignupAPI.as_view(), name='UserSignupAPI'),
     path('userlogin/',views.userLoginAPI.as_view(),name='userLoginAPI'),
@@ -39,5 +40,15 @@ urlpatterns = [
     path('DiscountAPI/',views.DiscountAPI.as_view(),name='DiscountAPI'),
     path('signupp/',views.signup),
     path('hello/', views.HelloView.as_view(), name ='hello'),
+    path('AddToWishlistAPI/', views.AddToWishlistAPI.as_view(), name ='AddToWishlistAPI'),
+    path('AddToCartAPI/', views.AddToCartAPI.as_view(), name ='AddToCartAPI'),
+    path('WishlistAPI/', views.WishlistAPI.as_view(), name ='WishlistAPI'),
+    path('FilterByNameAPI/', views.FilterByNameAPI.as_view(), name ='FilterByNameAPI'),
+    path('SizeAPI/', views.SizeAPI.as_view(), name ='SizeAPI'),
+    path('ColorAPI/', views.ColorAPI.as_view(), name ='ColorAPI'),
+    path('GenderAPI/', views.GenderAPI.as_view(), name ='GenderAPI'),
+    path('BrandAPI/', views.BrandAPI.as_view(), name ='BrandAPI'),
+    path('ProductListAPI/', views.ProductListAPI.as_view(), name ='ProductListAPI'),
+    path('StaffAPI/', views.StaffAPI.as_view(), name ='StaffAPI'),
 
 ]
