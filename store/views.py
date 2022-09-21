@@ -6,6 +6,8 @@ from rest_framework.views import APIView
 from django.http import JsonResponse
 from django.conf import settings
 from django.core.mail import send_mail
+
+from store.forms import UserImage
 from .models import *
 from .serializers import *
 from rest_framework.response import Response
@@ -567,4 +569,45 @@ class BrandListAPI(APIView):
         except Exception as e:
             return JsonResponse({"message":"Internal server eror {}".format(e)},safe=False,status=500)
 
-
+class HotelAPI(APIView):
+    def post(self, request,*args, **kwargs):
+        try:
+            Data = request.data
+            Serializer = HotelSerializer(data=Data)
+            if Serializer.is_valid():
+                Serializer.save()
+                return JsonResponse({"message":"Data added successfully"},safe=False,status=200)
+            else:
+                return JsonResponse({"message":"Something goes wrong"},safe=False,status=404)
+        except Exception as e:
+            return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
+    def get(self, request,*args, **kwargs):
+        try:
+            get_data = Hotel.objects.all()
+            Serializer = HotelSerializer(get_data,many=True)    
+            return JsonResponse(Serializer.data,safe=False,status=200)
+        except Exception as e:
+            return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
+    def delete(self, request, * args, **kwargs):
+        try:
+            id = request.GET.get('id')        
+            get_data = Hotel.objects.filter(id=id).delete()
+            if get_data:
+                HotelSerializer(get_data,many=True)
+                return JsonResponse({"message":"Data deleted successfully"},safe=False,status=200)
+            else:
+                return JsonResponse({"message":"Something goes wrong"},safe=False,status=200)
+        except Exception as e:
+            return JsonResponse({"message":"Internal server error{}".format(e)},safe=False,status=500)
+def image_request(request):
+    if request.method == 'POST':  
+        form = UserImage(request.POST, request.FILES)
+        if form.is_valid():  
+            form.save()  
+            img_object = form.instance  
+              
+            return render(request, 'image_form.html', {'form': form, 'img_obj': img_object})  
+    else:  
+        form = UserImage()  
+        # return render(request, 'image_form.html', {'form': form, 'img_obj': img_object})  
+    return render(request, 'image_form.html', {'form': form})  

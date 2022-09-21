@@ -1,3 +1,4 @@
+from distutils.command.upload import upload
 from pyexpat import model
 from re import L
 from statistics import mode
@@ -21,7 +22,7 @@ class mainCategory(models.Model):
     # slug = models.SlugField(unique=True, null=True)
     categoryName = models.CharField(max_length=100)
     description = models.CharField(max_length=100)
-    # image = models
+    # image = models.ImageField()
     class Meta:
         db_table = 'MainCategory'
         
@@ -103,7 +104,11 @@ class Staff(models.Model):
     class Meta:
         db_table = '__all__'
         
-
+class Hotel(models.Model): 
+    hotelName = models.CharField(max_length=30)
+    hotelImage = models.ImageField(upload_to='Images/')
+    class Meta:
+        db_table='Hotel'
        
         
 class Cart(models.Model):
