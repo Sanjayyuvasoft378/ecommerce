@@ -1,3 +1,4 @@
+from symbol import return_stmt
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login
 from django.shortcuts import render
@@ -599,6 +600,7 @@ class HotelAPI(APIView):
                 return JsonResponse({"message":"Something goes wrong"},safe=False,status=200)
         except Exception as e:
             return JsonResponse({"message":"Internal server error{}".format(e)},safe=False,status=500)
+
 def image_request(request):
     if request.method == 'POST':  
         form = UserImage(request.POST, request.FILES)
@@ -611,3 +613,30 @@ def image_request(request):
         form = UserImage()  
         # return render(request, 'image_form.html', {'form': form, 'img_obj': img_object})  
     return render(request, 'image_form.html', {'form': form})  
+
+class EditProfileAPI(APIView):
+    def post(self,request,*args,**kwargs):
+        try:
+            Data = request.data
+            id = Data[id]
+            get_data = User.objects.filter(id=id).update()
+            Serializer = UserSerializer(get_data, data=Data)
+            if Serializer.is_valid():
+                Serializer.save()
+                return JsonResponse({"message":"Data updated successfully"},safe=False,status=200)
+            else:
+                return JsonResponse({"message":"Something goes wrong"},safe=False,status=404)
+        except Exception as e:
+            return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
+
+class CategoriesListAPI(APIView):
+    def get(self, request):
+        try:
+            get_data = mainCategory.objects.all()
+            Serializer = MainCategorySerializer(get_data, many=True)
+            return JsonResponse(Serializer.data,safe=False,status=200)
+        except Exception as e:
+            return JsonResponse({"message":"Internal server error{} ".format(e)},safe=False,status=500)
+
+
+

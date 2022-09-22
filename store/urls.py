@@ -28,8 +28,12 @@ urlpatterns = [
     path('form/',views.form),
     path('chart/',views.chart),
     path('error/',views.error),
-    path('forgotpassword/',views.forgotpassword),
     path('blank/',views.blank),
+    path('forgotpassword/',views.forgotpassword),
+    path('signupp/',views.signup),
+    
+    
+    path('EditProfileAPI/', views.EditProfileAPI.as_view(), name = "image-EditProfileAPI"),
     path('usersignup/',views.UserSignupAPI.as_view(), name='UserSignupAPI'),
     path('userlogin/',views.userLoginAPI.as_view(),name='userLoginAPI'),
     path('myprofile/',views.MyProfileAPI.as_view(),name='MyProfileAPI'),
@@ -38,7 +42,6 @@ urlpatterns = [
     path('ProductAPI/',views.ProductAPI.as_view(),name = 'ProductAPI'),
     path('OfferAPI/',views.OfferAPI.as_view(),name='OfferAPI'),
     path('DiscountAPI/',views.DiscountAPI.as_view(),name='DiscountAPI'),
-    path('signupp/',views.signup),
     path('hello/', views.HelloView.as_view(), name ='hello'),
     path('AddToWishlistAPI/', views.AddToWishlistAPI.as_view(), name ='AddToWishlistAPI'),
     path('AddToCartAPI/', views.AddToCartAPI.as_view(), name ='AddToCartAPI'),
@@ -51,5 +54,6 @@ urlpatterns = [
     path('ProductListAPI/', views.ProductListAPI.as_view(), name ='ProductListAPI'),
     path('StaffAPI/', views.StaffAPI.as_view(), name ='StaffAPI'),
     path('HotelAPI/', views.HotelAPI.as_view(), name ='HotelAPI'),
-    path('image_request/', views.image_request, name = "image-request")  
+    path('image_request/', views.image_request, name = "image-request"),  
+    path('CategoriesListAPI/', views.CategoriesListAPI.as_view(), name = "CategoriesListAPI"),  
 ]
