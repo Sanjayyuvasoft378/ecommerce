@@ -56,4 +56,6 @@ urlpatterns = [
     path('HotelAPI/', views.HotelAPI.as_view(), name ='HotelAPI'),
     path('image_request/', views.image_request, name = "image-request"),  
     path('CategoriesListAPI/', views.CategoriesListAPI.as_view(), name = "CategoriesListAPI"),  
+    path('FeaturedProductAPI/', views.FeaturedProductAPI.as_view(), name = "FeaturedProductAPI"),  
+    path('DeactivateProductListAPI/', views.DeactivateProductListAPI.as_view(), name = "DeactivateProductListAPI"),  
 ]

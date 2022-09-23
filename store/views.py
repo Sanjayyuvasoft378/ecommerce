@@ -1,3 +1,4 @@
+from operator import truediv
 from symbol import return_stmt
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login
@@ -148,6 +149,10 @@ class MainCategoryAPI(APIView):
         try:
             Data = request.data
             serializer = MainCategorySerializer(data = Data)
+            if Data['statusText'] == "Active":
+                Data['status'] = True
+            else:
+                Data['status'] = False
             Data['createdOn'] = datetime.now()
             if serializer.is_valid():
                 serializer.save()
@@ -189,6 +194,10 @@ class SubCategoryAPI(APIView):
         try:
             Data = request.data
             serializer = SubCategorySerializer(data=Data)
+            if Data['statusText'] == "Active":
+                Data['status'] = True
+            else:
+                Data['status'] = False
             if serializer.is_valid():
                 serializer.save()
                 return JsonResponse({"message":"Data added successfully"},safe=False,status=200)
@@ -216,6 +225,10 @@ class ProductAPI(APIView):
         try:
             Data = request.data
             serializers = ProductSerializer(data= Data)
+            if Data['statusText'] == "Active":
+                Data['status'] = True
+            else:
+                Data['status'] = False
             if serializers.is_valid():
                 serializers.save()
                 return JsonResponse({"message":"Data added successfully"},safe=False,status=200)
@@ -245,6 +258,10 @@ class OfferAPI(APIView):
         try:
             Data = request.data
             serializer = OfferSerializer(data = Data)
+            if Data['statusText'] == "Active":
+                Data['status'] = True
+            else:
+                Data['status'] = False
             if serializer.is_valid():
                 serializer.save()
                 return JsonResponse({"message":"Data added successfully"},safe=False,status=200)
@@ -272,6 +289,10 @@ class DiscountAPI(APIView):
         try:
             Data = request.data
             Serializer = DiscountSerializer(data=Data)
+            if Data['statusText'] == "Active":
+                Data['status'] = True
+            else:
+                Data['status'] = False
             if Serializer.is_valid():
                 Serializer.save()
                 return JsonResponse({"message":"Data added successfully"},safe=False,status=200)
@@ -300,6 +321,10 @@ class SizeAPI(APIView):
         try:
             Data = request.data
             Serializer = SizeSerializer(data=Data)
+            if Data['statusText'] == "Active":
+                Data['status'] = True
+            else:
+                Data['status'] = False
             if Serializer.is_valid():
                 Serializer.save()
                 return JsonResponse({"message":"Data addedd successfully"},safe=False,status=200)
@@ -327,6 +352,10 @@ class ColorAPI(APIView):
         try:
             Data = request.data
             Serializer = ColorSerializer(data=Data)
+            if Data['statusText'] == "Active":
+                Data['status'] = True
+            else:
+                Data['status'] = False
             if Serializer.is_valid():
                 Serializer.save()
                 return JsonResponse({"message":"Data addedd successfully"},safe=False,status=200)
@@ -354,6 +383,10 @@ class GenderAPI(APIView):
         try:
             Data = request.data
             Serializer = GenderSerializer(data=Data)
+            if Data['statusText'] == "Active":
+                Data['status'] = True
+            else:
+                Data['status'] = False
             if Serializer.is_valid():
                 Serializer.save()
                 return JsonResponse({"message":"Data addedd successfully"},safe=False,status=200)
@@ -381,6 +414,10 @@ class BrandAPI(APIView):
         try:
             Data = request.data
             Serializer = BrandSerializer(data=Data)
+            if Data['statusText'] == "Active":
+                Data['status'] = True
+            else:
+                Data['status'] = False
             if Serializer.is_valid():
                 Serializer.save()
                 return JsonResponse({"message":"Data addedd successfully"},safe=False,status=200)
@@ -408,6 +445,10 @@ class SliderAPI(APIView):
         try:
             Data = request.data
             Serializer = SliderSerializer(data=Data)
+            if Data['statusText'] == "Active":
+                Data['status'] = True
+            else:
+                Data['status'] = False
             if Serializer.is_valid():
                 Serializer.save()
                 return JsonResponse({"message":"Data addedd successfully"},safe=False,status=200)
@@ -435,6 +476,10 @@ class StaffAPI(APIView):
         try:
             Data = request.data
             Serializer = StaffSerializer(data=Data)
+            if Data['statusText'] == "Active":
+                Data['status'] = True
+            else:
+                Data['status'] = False
             if Serializer.is_valid():
                 Serializer.save()
                 return JsonResponse({"message":"Data addedd successfully"},safe=False,status=200)
@@ -569,12 +614,23 @@ class BrandListAPI(APIView):
             return JsonResponse(Serializer.data,safe=False, status=200)
         except Exception as e:
             return JsonResponse({"message":"Internal server eror {}".format(e)},safe=False,status=500)
-
+class DeactivateProductListAPI(APIView):
+    def get(self, request):
+        try:
+            get_data = Product.objects.filter(status=False)
+            Serializer = ProductSerializer(get_data,many=True)
+            return JsonResponse(Serializer.data,safe=False,status=200)
+        except Exception as e:
+            return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
 class HotelAPI(APIView):
     def post(self, request,*args, **kwargs):
         try:
             Data = request.data
             Serializer = HotelSerializer(data=Data)
+            if Data['statusText'] == "Active":
+                Data['status'] = True
+            else:
+                Data['status'] = False
             if Serializer.is_valid():
                 Serializer.save()
                 return JsonResponse({"message":"Data added successfully"},safe=False,status=200)
@@ -638,5 +694,22 @@ class CategoriesListAPI(APIView):
         except Exception as e:
             return JsonResponse({"message":"Internal server error{} ".format(e)},safe=False,status=500)
 
-
+class FeaturedProductAPI(APIView):
+    def get(self, request,*args,**kwargs):
+        try:
+            offerId = request.GET.get("id")
+            get_data = Product.objects.filter(offerId=offerId)
+            if get_data:
+                get_offer = Offer.objects.filter(id = offerId)
+                for i in get_offer:
+                    offerValue = i['offerId']
+                    if offerValue > 50:
+                        Serializer = ProductSerializer(get_data,mant=True)
+                        return JsonResponse(Serializer.data, safe=False,status=200)
+                    else:
+                        return JsonResponse({"message":"Offer not availbale"},safe=False,status=400)
+            else:
+                return JsonResponse({"message ":"Offerid not found"},safe=False,status=400)
+        except Exception as e:
+            return JsonResponse({"message":"Internal server error {}".format(e)},safe=False,status=500)
 
